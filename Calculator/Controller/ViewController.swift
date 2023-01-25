@@ -24,7 +24,19 @@ class ViewController: UIViewController {
         }
         set {
 //            displayLabel.text = newValue.withCommas() // - это если используем расширение с самого низа
-            displayLabel.text = String(newValue)
+//у анжелы было так
+            //            displayLabel.text = String(newValue)
+//            теперь так
+            
+            if newValue == 0 {
+                displayLabel.text = "0"
+            } else {
+                displayLabel.text = String(newValue)
+            }
+            
+            if newValue.truncatingRemainder(dividingBy: 1) == 0 {
+                displayLabel.text = String(Int(newValue))
+            }
         }
     }
     
@@ -157,8 +169,9 @@ class ViewController: UIViewController {
             //guard let currentDisplayValue = Double(displayLabel.text!) else {
             //fatalError("Cannot convert displayLabel text to a Double")
             //}
-                    
-                    let isInt = floor(displayValue) == displayValue
+                    // код у анжелы был как нижн, но подсмотрел в решении багов рещение строкой еще ниже
+//                    let isInt = floor(displayValue) == displayValue
+                    let isInt = !displayLabel.text!.contains(".")
                     // floor - округляем цифру до целого числа
                     if !isInt {
                         //если не явялется целым числом, то тогда выходим из этой цепи логики, просто пишем return. и выходим не просто из текущего if, а вообще из els'a всей функции
