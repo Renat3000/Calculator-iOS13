@@ -18,20 +18,22 @@ class ViewController: UIViewController {
         
         get {
             guard let number = Double(displayLabel.text!) else {
-                fatalError("cannot conver display label text to a Double")
+                return Double(0)
+//                fatalError("cannot conver display label text to a Double")
             }
             return number
         }
         set {
 //            displayLabel.text = newValue.withCommas() // - это если используем расширение с самого низа
-//у анжелы было так
+//              у анжелы было так
             //            displayLabel.text = String(newValue)
 //            теперь так
             
             if newValue == 0 {
                 displayLabel.text = "0"
             } else {
-                displayLabel.text = String(newValue)
+//                displayLabel.text = String(newValue)
+                displayLabel.text = String(newValue.withCommas())
             }
             
             if newValue.truncatingRemainder(dividingBy: 1) == 0 {
@@ -79,36 +81,15 @@ class ViewController: UIViewController {
     if let calcMethod = sender.currentTitle {
             if calcMethod == "C" {
                 clearButton.setTitle("AC", for: .normal)
+                
             }
             if let result = calculator.calculate(symbol: calcMethod) {
                 displayValue = result
+            
             }
         
         }
     }
-
-    // мой код на backspace
-//    @IBAction func backspacePressed(_ sender: UIButton) {
-//        if var number = displayLabel.text {
-//            if isFinishedTypingNumber == true {
-//                number.removeLast()
-//                displayValue = Double(number)!
-//                isFinishedTypingNumber = false
-//            } else {
-//                number.removeLast()
-//                displayValue = Double(number)!
-//            }
-//        }
-//    }
-//      вот это кажется самым красивым решением проблемы с <-, но изза Double не оч реализуемо
-//    if var number = displayLabel.text {
-//        if isFinishedTypingNumber == true {
-//            number = "\(number.removeLast())"
-//            isFinishedTypingNumber = false
-//        } else {
-//            number = "\(number.removeLast())"
-//        }
-//    }
 
     
     
@@ -121,34 +102,23 @@ class ViewController: UIViewController {
         if displayValue != nil {
             clearButton.setTitle("C", for: .normal)
         }
-        
+    
         
         // вообще, мы можем ограничиться displayLabel.text = sender.currentTitle, но currentTitle у нас String? то есть нужно блять как то его проверить, поэтому через if let проверяем что currenTitle не пустой
-        
         if let numValue = sender.currentTitle {
             if isFinishedTypingNumber == true {
-
+                
                 //бэкспэйс засунул сюда
                 if numValue == "⬅" {
-                    // блять есть два варианта, первый:
-                    // с этим вариантом все хорошо работает, но он удаляет цифры до их полного отсутствия, то есть даже 0 нет
-                    if displayLabel.text!.count >= 1 {
+
+                    if displayLabel.text!.count > 1 {
                         displayLabel.text?.removeLast()
                     } else {
-                        displayLabel.text = String(0)
+             displayValue = Double(0)
                     }
-//                    второй вариант - удаляет до последнего символа. если 1 символ на экране, то превращает его в 0, но есть баг. последний символ 0 и если начинаешь печатать числа на экране, то он пишет 0999, то есть 0 не исчезает.
-//                                        if displayLabel.text!.count == 1 {
-//                                            displayLabel.text = String(0)
-//                                        } else {
-//                                            displayLabel.text?.removeLast()
-//                                        }
+
                 } else {
-                //идея, поставить тут условие что если numvalue == "⬅", то удаляем последнюю цифру из дисплея.
-                //  if numValue == "⬅" {
-                //  displayLabel.text?.removeLast()
-                //  }
-                
+             
                 displayLabel.text = numValue
                 //на этом моменте мы больше не сможем вводить цифры, для этого надо ввести переменную isFinishedTypingNumber, которую будем "сбрасывать" чтобы могли продолжать печатать сколько хотим. причем она сбрасывается когда мы нажали на кнопку и после этого мы можем делать код из блока else. хитро!
                 isFinishedTypingNumber = false
@@ -156,14 +126,16 @@ class ViewController: UIViewController {
             } else {
                 if numValue == "⬅" {
 
-                    if displayLabel.text!.count >= 1 {
+                    if displayLabel.text!.count > 1 {
                         displayLabel.text?.removeLast()
                     } else {
-                        displayLabel.text = String(0)
+                        displayValue = Double(0)
+                        isFinishedTypingNumber = true
                     }
                     
                 } else {
                 //дальше фиксим проблему что мы можем ставить больше одной .
+                    
                 if numValue == "." {
             //раньше было еще вот это, но нихуя не понятно нахуя
             //guard let currentDisplayValue = Double(displayLabel.text!) else {
@@ -188,11 +160,11 @@ class ViewController: UIViewController {
 }
 
 // добавили расширение для того чтобы 2.3 x 3 было 6.9, а не 6.8999999(9)
-//extension Double {
-//  func withCommas() -> String {
-//    let numberFormatter = NumberFormatter()
+extension Double {
+  func withCommas() -> String {
+    let numberFormatter = NumberFormatter()
 //    numberFormatter.numberStyle = NumberFormatter.Style.decimal
-//    numberFormatter.maximumFractionDigits = 3  // default is 3 decimals
-//    return numberFormatter.string(from: NSNumber(value: self)) ?? ""
-//  }
-//}
+    numberFormatter.maximumFractionDigits = 7  // default is 3 decimals
+    return numberFormatter.string(from: NSNumber(value: self)) ?? ""
+  }
+}

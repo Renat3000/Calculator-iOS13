@@ -25,16 +25,30 @@ struct CalculatorLogic {
 
             switch symbol {
             case "+/-": return n * -1
-            case "AC": return 0 
+            case "AC": intermediateCalculation = nil
+                //подсмотрел строку выше
+                return 0
             case "%": return n * 0.01
             case "C": return 0
-            case "=": return performTwoNumCalculation(n2: n)
-                // если нажимаем +, -, ×, ÷, то происходит вот
-            default: intermediateCalculation = (n1: n, calcMethod: symbol)
+            case "=": let result = performTwoNumCalculation(n2: n)
+                // чистим предыдущие вычисления, подсмотрел это https://www.udemy.com/course/ios-13-app-development-bootcamp/learn/lecture/11860696#questions/9484524
+                intermediateCalculation = nil
+                return result
+                
+            // если нажимаем +, -, ×, ÷, то происходит вот
+            default:
+                //старый код
+//                intermediateCalculation = (n1: n, calcMethod: symbol)
+                // новый - подсмотрел
+                var result = n
+                // if there has been any previous calculation pending, peform it and return result
+                // result will be an input for next intermediateCalculation
+                if let previousCalcResult = performTwoNumCalculation(n2: n) {
+                                    result = previousCalcResult
+                }
+                intermediateCalculation = (n1: result, calcMethod: symbol)
+                return result
             }
-//            если у нас уже есть n1 и n2         if let n1 = intermediateCalculation?.n1,
-//            let n2 = n
-//            если "+, -, ×, ÷ ": return performTwoNumCalculation(n2: n)
             }
         return nil
     }
@@ -54,5 +68,3 @@ struct CalculatorLogic {
         return nil
     }
 }
-
-
