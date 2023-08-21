@@ -24,7 +24,7 @@ struct CalculatorLogic {
         if let n = number {
 
             switch symbol {
-            case "+/-": return n * -1
+            case "±": return n * -1
             case "AC": intermediateCalculation = nil
                 //подсмотрел строку выше
                 return 0
@@ -37,9 +37,6 @@ struct CalculatorLogic {
                 
             // если нажимаем +, -, ×, ÷, то происходит вот
             default:
-                //старый код
-//                intermediateCalculation = (n1: n, calcMethod: symbol)
-                // новый - подсмотрел
                 var result = n
                 // if there has been any previous calculation pending, peform it and return result
                 // result will be an input for next intermediateCalculation
