@@ -19,7 +19,6 @@ class ViewController: UIViewController {
             if newValue == 0 {
                 outputField.text = "0"
             } else {
-//                displayLabel.text = String(newValue)
                 outputField.text = String(newValue.withCommas())
             }
             
@@ -32,7 +31,7 @@ class ViewController: UIViewController {
     
     init() {
         outputField = createLabel()
-        outputField.text = " "
+        outputField.text = "0"
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -53,12 +52,13 @@ class ViewController: UIViewController {
         outputField.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         
         let zeroStack = createStackView()
-        let buttonAC = makeButton(withText: "C")
+        let buttonAC = makeButton(withText: "AC")
         let buttonSign = makeButton(withText: "±")
         let buttonPercentage = makeButton(withText: "%")
         let buttonDivision = makeButton(withText: "÷")
         
         buttonAC.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
+        buttonAC.titleLabel?.adjustsFontSizeToFitWidth = true
         buttonSign.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         buttonPercentage.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
         buttonDivision.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
@@ -98,7 +98,7 @@ class ViewController: UIViewController {
         let button4 = makeButton(withText: "4")
         let button5 = makeButton(withText: "5")
         let button6 = makeButton(withText: "6")
-        let buttonMinus = makeButton(withText: "–")
+        let buttonMinus = makeButton(withText: "-")
         
         button4.addTarget(self, action: #selector(numButtonPressed(_:)), for: .touchUpInside)
         button5.addTarget(self, action: #selector(numButtonPressed(_:)), for: .touchUpInside)
@@ -141,13 +141,16 @@ class ViewController: UIViewController {
         let buttonComma = makeButton(withText: ".")
         let button0 = makeButton(withText: "0")
         let buttonEquals = makeButton(withText: "=")
+        let buttonBackspace = makeButton(withText: "←")
         
+        buttonComma.addTarget(self, action: #selector(numButtonPressed(_:)), for: .touchUpInside)
         button0.addTarget(self, action: #selector(numButtonPressed(_:)), for: .touchUpInside)
         buttonEquals.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
-        buttonComma.addTarget(self, action: #selector(calcButtonPressed(_:)), for: .touchUpInside)
+        buttonBackspace.addTarget(self, action: #selector(numButtonPressed(_:)), for: .touchUpInside)
         
         fourthStack.addArrangedSubview(button0)
         fourthStack.addArrangedSubview(buttonComma)
+        fourthStack.addArrangedSubview(buttonBackspace)
         fourthStack.addArrangedSubview(buttonEquals)
         view.addSubview(fourthStack)
         
@@ -159,7 +162,6 @@ class ViewController: UIViewController {
 //        buttonComma.widthAnchor.constraint(equalTo: fourthStack.widthAnchor, multiplier: 0.24).isActive = true
 //        buttonEquals.widthAnchor.constraint(equalTo: fourthStack.widthAnchor, multiplier: 0.235).isActive = true
     }
-    //    var clearButton: UIButton!
     
     private var calculator = CalculatorLogic()
     @objc func calcButtonPressed(_ sender: UIButton) {
@@ -169,33 +171,22 @@ class ViewController: UIViewController {
         
         if let calcMethod = sender.currentTitle {
             if calcMethod == "C" {
-//          clearButton.setTitle("AC", for: .normal)
+//                isFinishedTypingNumber = false
+//          buttonAC.setTitle("AC", for: .normal)
             }
             if let result = calculator.calculate(symbol: calcMethod) {
                 displayValue = result
+//              или  outputField.text = String(Int(result))
             }
         }
     }
     
-//    @objc func numPressed(_ sender: UIButton) {
-//        //What should happen when a non-number button is pressed
-//        isFinishedTypingNumber = false
-//
-//        if let numValue = sender.currentTitle {
-//            outputField.text?.append(numValue)
-//        }
-//    }
             
     @objc func numButtonPressed(_ sender: UIButton) {
         //What should happen when a number is entered into the keypad
-        //замена AC на C. всрато, но работает. ругается что "Comparing non-optional value of type 'Double' to 'nil' always returns true"
-        if displayValue != nil {
-//            clearButton.setTitle("C", for: .normal)
-        }
-// вообще, мы можем ограничиться displayLabel.text = sender.currentTitle, но currentTitle у нас String? то есть нужно блять как то его проверить, поэтому через if let проверяем что currenTitle не пустой
+        // вообще, мы можем ограничиться displayLabel.text = sender.currentTitle, но currentTitle у нас String? то есть нужно блять как то его проверить, поэтому через if let проверяем что currenTitle не пустой
         if let numValue = sender.currentTitle {
             if isFinishedTypingNumber == true {
-                
                 //бэкспэйс засунул сюда
                 if numValue == "←" {
                     if outputField.text!.count > 1 {
@@ -203,7 +194,7 @@ class ViewController: UIViewController {
                     } else {
                         displayValue = Double(0)
                     }
-                
+                    
                 } else {
                     outputField.text = numValue
                     //на этом моменте мы больше не сможем вводить цифры, для этого надо ввести переменную isFinishedTypingNumber, которую будем "сбрасывать" чтобы могли продолжать печатать сколько хотим. причем она сбрасывается когда мы нажали на кнопку и после этого мы можем делать код из блока else. хитро!
@@ -218,18 +209,23 @@ class ViewController: UIViewController {
                         displayValue = Double(0)
                         isFinishedTypingNumber = true
                     }
-                    
-                } else {
-                    
                     //дальше фиксим проблему что мы можем ставить больше одной .
-                    if numValue == "." {
-                        let isInt = !outputField.text!.contains(".")
-                        // floor - округляем цифру до целого числа
-                        if !isInt {
-                            //если не явялется целым числом, то тогда выходим из этой цепи логики, просто пишем return. и выходим не просто из текущего if, а вообще из els'a всей функции
-                            return
-                        }
+                } else if numValue == "." {
+                    if displayValue == 0 {
+                        outputField.text = "0."
+                        isFinishedTypingNumber = false
+                        return
                     }
+                    let isInt = !outputField.text!.contains(".")
+                    // floor - округляем цифру до целого числа
+                    if !isInt {
+                        //если не явялется целым числом, то тогда выходим из этой цепи логики, просто пишем return. и выходим не просто из текущего if, а вообще из els'a всей функции
+                        return
+                    }
+                } else if outputField.text == "0" || isFinishedTypingNumber {
+                    outputField.text = numValue
+                    isFinishedTypingNumber = false
+                } else {
                     //и  собственно строка добавления цифры в циферблат
                     outputField.text?.append(numValue)
                 }
@@ -237,6 +233,7 @@ class ViewController: UIViewController {
         }
     }
 }
+
 
 // добавили расширение для того чтобы 2.3 x 3 было 6.9, а не 6.8999999(9)
 extension Double {
