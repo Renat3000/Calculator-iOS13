@@ -12,6 +12,7 @@ class ViewController: UIViewController {
         get {
             guard let number = Double(outputField.text!) else {
                 return Double(0)
+                // для проверки числа на влезание в экран можем использовать функцию Double.greatestFiniteMagnitude
             }
             return number
         }
@@ -23,11 +24,10 @@ class ViewController: UIViewController {
             }
             
             if newValue.truncatingRemainder(dividingBy: 1) == 0 {
-                outputField.text = String(Int(newValue))
+                outputField.text = String(newValue.withCommas())
             }
         }
     }
-    
     
     init() {
         outputField = createLabel()
